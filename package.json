@@ -36,6 +36,7 @@
     "@types/chai": "^3.4.35",
     "@types/chai-as-promised": "0.0.29",
     "@types/mocha": "^2.2.39",
+    "@types/sanitize-html": "^1.13.31",
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "istanbul": "^0.4.5",
@@ -45,8 +46,13 @@
     "typescript": "^2.2.1"
   },
   "dependencies": {
+    "@phosphor/algorithm": "^0.1.0",
     "@phosphor/coreutils": "^0.1.2",
     "@phosphor/disposable": "^0.1.0",
+    "@phosphor/messaging": "^0.1.1",
     "@phosphor/signaling": "^0.1.1",
+    "@phosphor/virtualdom": "^0.1.0",
+    "@phosphor/widgets": "^0.1.4",
+    "sanitize-html": "^1.14.1"
   }
 }

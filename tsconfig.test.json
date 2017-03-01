@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "noImplicitAny": true,
+    "noEmitOnError": true,
+    "noUnusedLocals": true,
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "ES5",
+    "outDir": "./build",
+    "baseUrl": "../..",
+    "lib": ["dom", "es5", "es2015.collection", "es2015.promise"],
+    "types": ["mocha", "chai", "chai-as-promised"]
+  },
+  "include": ["test/**/*", "typings.d.ts"]
+}
