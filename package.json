@@ -1,0 +1,52 @@
+{
+  "name": "@jupyterlab/domutils",
+  "version": "0.1.0",
+  "description": "JupyterLab - DOM Utilities",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build:src": "tsc --project tsconfig.src.json",
+    "build:test": "tsc --project tsconfig.test.json",
+    "build": "npm run build:src && npm run build:test",
+    "clean": "rimraf lib && rimraf build",
+    "test:coverage": "istanbul cover --dir coverage _mocha -- build/*.spec.js",
+    "test:integration": "cd test && python integration_test.py",
+    "test:devtool": "devtool node_modules/mocha/bin/_mocha -qc build/*.spec.js --jupyter-config-data=./test/config.json",
+    "test:debug": "mocha build/*/*.spec.js --jupyter-config-data=./test/config.json --debug-brk",
+    "test": "mocha build/*.spec.js --jupyter-config-data=./test/config.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jupyterlab/domutils.git"
+  },
+  "files": [
+    "lib/*.d.ts",
+    "lib/*.js"
+  ],
+  "directories": {
+    "lib": "lib/"
+  },
+  "author": "Project Jupyter",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/jupyterlab/domutils/issues"
+  },
+  "homepage": "https://github.com/jupyterlab/domutils",
+  "devDependencies": {
+    "@types/chai": "^3.4.35",
+    "@types/chai-as-promised": "0.0.29",
+    "@types/mocha": "^2.2.39",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "rimraf": "^2.5.2",
+    "sinon": "^1.17.7",
+    "typescript": "^2.2.1"
+  },
+  "dependencies": {
+    "@phosphor/coreutils": "^0.1.2",
+    "@phosphor/disposable": "^0.1.0",
+    "@phosphor/signaling": "^0.1.1",
+  }
+}
