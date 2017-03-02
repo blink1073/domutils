@@ -14,7 +14,7 @@ import {
 } from '@phosphor/widgets';
 
 import {
-  simulate
+  generate, simulate
 } from 'simulate-event';
 
 import {
@@ -200,9 +200,34 @@ describe('@jupyterlab/domutils', () => {
 
       describe('#resolve()', () => {
 
+        it('should resolve with the default item', () => {
+          let promise = dialog.show().then(result => {
+            expect(result.action).to.equal('accept');
+          });
+          dialog.resolve();
+          return promise;
+        });
+
+        it('should resolve with the item at the given index', () => {
+          let promise = dialog.show().then(result => {
+            expect(result.action).to.equal('reject');
+          });
+          dialog.resolve(0);
+          return promise;
+        });
+
       });
 
       describe('#reject()', () => {
+
+        it('should reject with the default reject item', () => {
+          let promise = dialog.show().then(result => {
+            expect(result.label).to.equal('');
+            expect(result.action).to.equal('reject');
+          });
+          dialog.reject();
+          return promise;
+        });
 
       });
 
@@ -243,12 +268,14 @@ describe('@jupyterlab/domutils', () => {
 
         context('contextmenu', () => {
 
-          it('should ignore context menu events', () => {
+          it('should cancel context menu events', () => {
             let promise = dialog.show().then(result => {
               expect(result.action).to.equal('reject');
             });
             let node = document.body.getElementsByClassName('jp-Dialog')[0];
-            simulate(node as HTMLElement, 'contextmenu');
+            let evt = generate('contextmenu');
+            let cancelled = !node.dispatchEvent(evt);
+            expect(cancelled).to.equal(true);
             simulate(node as HTMLElement, 'keydown', { keyCode: 27 });
             return promise;
           });
@@ -257,9 +284,31 @@ describe('@jupyterlab/domutils', () => {
 
         context('click', () => {
 
+          it('should prevent clicking outside of the content area', () => {
+            let promise = dialog.show();
+            let evt = generate('click');
+            let cancelled = !dialog.node.dispatchEvent(evt);
+            expect(cancelled).to.equal(true);
+            dialog.resolve();
+            return promise;
+          });
+
+          it('should resolve a clicked button', () => {
+            let promise = dialog.show().then(result => {
+              expect(result.action).to.equal('reject');
+            });
+            let node = dialog.node.querySelector('.jp-mod-reject');
+            simulate(node, 'click');
+            return promise;
+          });
+
         });
 
         context('focus', () => {
+
+          it('should focus the default button when focus leaves the dialog', () => {
+
+          });
 
         });
 
