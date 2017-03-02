@@ -551,7 +551,7 @@ namespace Dialog {
      */
     createItemClass(data: IButton): string {
       // Setup the initial class name.
-      let name = 'p-Dialog-button';
+      let name = 'jp-Dialog-button';
 
       // Add the other state classes.
       if (data.action === 'accept') {
@@ -581,7 +581,7 @@ namespace Dialog {
      * @returns The full class name for the item icon.
      */
     createIconClass(data: IButton): string {
-      let name = 'p-Dialog-buttonIcon';
+      let name = 'jp-Dialog-buttonIcon';
       let extra = data.icon;
       return extra ? `${name} ${extra}` : name;
     }
@@ -594,9 +594,9 @@ namespace Dialog {
      * @returns A virtual element representing the item label.
      */
     renderLabel(data: IButton): VirtualElement {
-      let className = 'p-Dialog-buttonLabel';
+      let className = 'jp-Dialog-buttonLabel';
       let title = data.caption;
-      return h.div({ className, title });
+      return h.div({ className, title }, data.label);
     }
   }
 
