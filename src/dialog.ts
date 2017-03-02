@@ -22,7 +22,7 @@ import {
 } from '@phosphor/widgets';
 
 import {
-  styleElements
+  styleNode
 } from './styling';
 
 
@@ -465,7 +465,7 @@ namespace Dialog {
       } else {
         body = new Widget({ node: value as HTMLElement });
       }
-      styleElements(body.node);
+      styleNode(body.node);
       body.addClass('jp-Dialog-body');
       return body;
     }
