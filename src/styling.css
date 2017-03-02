@@ -49,7 +49,7 @@ select.jp-mod-styled {
   border: none;
   border-radius: 0px;
   padding-left: 8px;
-  background-image: url('images/down_caret.svg');
+  background-image: var(--jp-select-dropdown);
   background-repeat: no-repeat;
   background-position: right center;
   background-size: 20px;
