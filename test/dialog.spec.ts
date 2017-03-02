@@ -22,51 +22,47 @@ import {
 } from '..';
 
 
-
 /**
- * Wait for a dialog to be attached to an element.
+ * Accept a dialog.
  */
-export
-function waitForDialog(host: HTMLElement = document.body): Promise<void> {
-  return new Promise<void>((resolve, reject) => {
-    let refresh = () => {
-      let node = host.getElementsByClassName('jp-Dialog')[0];
-      if (node) {
-        resolve(void 0);
-        return;
-      }
-      setTimeout(refresh, 10);
-    };
-    refresh();
-  });
+function acceptDialog(host: HTMLElement = document.body): void {
+  let node = host.getElementsByClassName('jp-Dialog')[0];
+  simulate(node as HTMLElement, 'keydown', { keyCode: 13 });
 }
 
 
 /**
- * Accept a dialog after it is attached if it has an OK button.
+ * Dismiss a dialog.
  */
-export
-function acceptDialog(host: HTMLElement = document.body): Promise<void> {
-  return waitForDialog(host).then(() => {
-    let node = host.getElementsByClassName('jp-Dialog')[0];
-    if (node) {
-      simulate(node as HTMLElement, 'keydown', { keyCode: 13 });
-    }
-  });
+function dismissDialog(host: HTMLElement = document.body): void {
+  let node = host.getElementsByClassName('jp-Dialog')[0];
+  simulate(node as HTMLElement, 'keydown', { keyCode: 27 });
 }
 
 
-/**
- * Dismiss a dialog after it is attached.
- */
-export
-function dismissDialog(host: HTMLElement = document.body): Promise<void> {
-  return waitForDialog(host).then(() => {
-    let node = host.getElementsByClassName('jp-Dialog')[0];
-    if (node) {
-      simulate(node as HTMLElement, 'keydown', { keyCode: 27 });
-    }
-  });
+class TestDialog extends Dialog {
+  methods: string[] = [];
+  events: string[] = [];
+
+  handleEvent(event: Event): void {
+    super.handleEvent(event);
+    this.events.push(event.type);
+  }
+
+  protected onBeforeAttach(msg: Message): void {
+    super.onBeforeAttach(msg);
+    this.methods.push('onBeforeAttach');
+  }
+
+  protected onAfterDetach(msg: Message): void {
+    super.onAfterDetach(msg);
+    this.methods.push('onAfterDetach');
+  }
+
+  protected onCloseRequest(msg: Message): void {
+    super.onCloseRequest(msg);
+    this.methods.push('onCloseRequest');
+  }
 }
 
 
@@ -74,15 +70,15 @@ describe('@jupyterlab/domutils', () => {
 
   describe('showDialog()', () => {
 
-    it('should accept zero arguments', (done) => {
-      showDialog().then(result => {
+    it('should accept zero arguments', () => {
+      let promise = showDialog().then(result => {
         expect(result).to.equal(false);
-        done();
       });
       dismissDialog();
+      return promise;
     });
 
-    it('should accept dialog options', (done) => {
+    it('should accept dialog options', () => {
       let node = document.createElement('div');
       document.body.appendChild(node);
       let options = {
@@ -92,72 +88,117 @@ describe('@jupyterlab/domutils', () => {
         buttons: [Dialog.okButton],
         okText: 'Yep'
       };
-      showDialog(options).then(result => {
+      let promise = showDialog(options).then(result => {
         expect(result).to.equal(false);
-        done();
       });
       dismissDialog();
+      return promise;
     });
 
-    it('should accept an html body', (done) => {
+    it('should call the given callback', () => {
+      let called = false;
+      let callback = () => {
+        called = true;
+      };
+      let options = {
+        buttons: [{
+          label: 'foo',
+          callback
+        }]
+      };
+      let promise = showDialog(options).then(result => {
+        expect(result).to.equal(true);
+        expect(called).to.equal(true);
+      });
+      acceptDialog();
+      return promise;
+    });
+
+    it('should accept an html body', () => {
       let body = document.createElement('div');
       let input = document.createElement('input');
       let select = document.createElement('select');
       body.appendChild(input);
       body.appendChild(select);
-      showDialog({ body }).then(result => {
+      let promise = showDialog({ body }).then(result => {
         expect(result).to.equal(true);
-        done();
       });
       acceptDialog();
+      return promise;
     });
 
-    it('should accept a widget body', (done) => {
+    it('should accept a widget body', () => {
       let body = new Widget();
-      showDialog({ body }).then(result => {
+      let promise = showDialog({ body }).then(result => {
         expect(result).to.equal(true);
-        done();
       });
       acceptDialog();
+      return promise;
     });
 
-    it('should ignore context menu events', (done) => {
-      let body = document.createElement('div');
-      showDialog({ body }).then(result => {
-        expect(result).to.equal(false);
-        done();
-      });
-      Promise.resolve().then(() => {
-        let node = document.body.getElementsByClassName('jp-Dialog')[0];
-        simulate(node as HTMLElement, 'contextmenu');
-        simulate(node as HTMLElement, 'keydown', { keyCode: 27 });
-      });
-    });
 
-    /**
-     * Class to test that onAfterAttach is called
-     */
-    class TestWidget extends Widget {
-      constructor(resolve: () => void) {
-        super();
-        this.resolve = resolve;
-      }
-      protected onAfterAttach(msg: Message): void {
-        this.resolve();
-      }
+    describe('Dialog', () => {
 
-      resolve: () => void;
-    }
+      let dialog: TestDialog;
 
-    it('should fire onAfterAttach on widget body', (done) => {
-      let promise = new Promise((resolve, reject) => {
-        let body = new TestWidget(resolve);
-        showDialog({ body });
+      beforeEach(() => {
+        dialog = new TestDialog();
       });
-      promise.then(() => {
-        dismissDialog();
-        done();
+
+      afterEach(() => {
+        dialog.dispose();
       });
+
+      describe('#constructor()', () => {
+
+      });
+
+      describe('#show()', () => {
+
+      });
+
+      describe('#handleEvent()', () => {
+
+        context('keydown', () => {
+
+        });
+
+        context('contextmenu', () => {
+
+          it('should ignore context menu events', () => {
+            let promise = dialog.show().then(result => {
+              expect(result).to.equal(false);
+            });
+            let node = document.body.getElementsByClassName('jp-Dialog')[0];
+            simulate(node as HTMLElement, 'contextmenu');
+            simulate(node as HTMLElement, 'keydown', { keyCode: 27 });
+            return promise;
+          });
+
+        });
+
+        context('click', () => {
+
+        });
+
+        context('focus', () => {
+
+        });
+
+      });
+
+      describe('#onBeforeAttach()', () => {
+
+      });
+
+      describe('#onAfterDetach()', () => {
+
+      });
+
+      describe('#onCloseRequest()', () => {
+
+      });
+
     });
 
   });
