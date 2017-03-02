@@ -10,7 +10,7 @@ import {
  * Get the index of the node at a client position, or `-1`.
  */
 export
-function hitTestNodes(nodes: HTMLElement[] | NodeList, x: number, y: number): number {
+function hitTestNodes(nodes: ReadonlyArray<HTMLElement> | NodeList, x: number, y: number): number {
   for (let i = 0, n = nodes.length; i < n; ++i) {
     if (ElementExt.hitTest(nodes[i] as HTMLElement, x, y)) {
       return i;
