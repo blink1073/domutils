@@ -223,6 +223,9 @@ class Dialog extends Widget {
    * Reject the dialog.
    */
   private _reject(): void {
+    if (!this._promise) {
+      return;
+    }
     // Find the first button with a cancel action.
     let index = ArrayExt.findFirstIndex(this._buttons, button => {
       return button.action === 'reject';
@@ -240,6 +243,9 @@ class Dialog extends Widget {
    * Accept and close the dialog.
    */
   private _resolve(index: number): void {
+    if (!this._promise) {
+      return;
+    }
     let button = this._buttons[index];
     let callback = button.callback;
     callback();
@@ -460,10 +466,10 @@ namespace Dialog {
       if (typeof value === 'string') {
         body = new Widget({ node: document.createElement('span') });
         body.node.textContent = value;
-      } else if (body instanceof Widget) {
-        body = value as Widget;
+      } else if (value instanceof Widget) {
+        body = value;
       } else {
-        body = new Widget({ node: value as HTMLElement });
+        body = new Widget({ node: value });
       }
       styleNode(body.node);
       body.addClass('jp-Dialog-body');

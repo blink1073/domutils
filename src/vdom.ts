@@ -37,7 +37,7 @@ abstract class VDomWidget<T extends VDomWidget.IModel> extends Widget {
   /**
    * Set the model and fire changed signals.
    */
-  set model(newValue: T) {
+  set model(newValue: T | null) {
     newValue = newValue || null;
     if (this._model === newValue) {
       return;
@@ -57,7 +57,7 @@ abstract class VDomWidget<T extends VDomWidget.IModel> extends Widget {
   /**
    * Get the current model.
    */
-  get model(): T {
+  get model(): T | null {
     return this._model;
   }
 
@@ -91,7 +91,7 @@ abstract class VDomWidget<T extends VDomWidget.IModel> extends Widget {
    */
   protected abstract render(): VirtualNode | ReadonlyArray<VirtualNode>;
 
-  private _model: T;
+  private _model: T | null;
   private _modelChanged = new Signal<this, void>(this);
 }
 
