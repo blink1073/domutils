@@ -34,7 +34,7 @@ import {
  * @returns A promise that resolves with whether the dialog was accepted.
  */
 export
-function showDialog(options: Dialog.IOptions={}): Promise<boolean> {
+function showDialog(options: Dialog.IOptions={}): Promise<Dialog.IButton> {
   let dialog = new Dialog(options);
   return dialog.show().then(result => {
     dialog.dispose();
@@ -85,10 +85,10 @@ class Dialog extends Widget {
   /**
    * Launch the dialog as a modal window.
    *
-   * @returns a promise that resolves with the value of the dialog.
+   * @returns a promise that resolves with the button that was selected.
    */
-  show(): Promise<boolean> {
-    this._promise = new PromiseDelegate<boolean>();
+  show(): Promise<Dialog.IButton> {
+    this._promise = new PromiseDelegate<Dialog.IButton>();
     Widget.attach(this, this._host);
     return this._promise.promise;
   }
@@ -126,7 +126,7 @@ class Dialog extends Widget {
   /**
    *  A message handler invoked on a `'before-attach'` message.
    */
-  protected onBeforeAttach(msg: Message): void {
+  protected onAfterAttach(msg: Message): void {
     let node = this.node;
     node.addEventListener('keydown', this, true);
     node.addEventListener('contextmenu', this, true);
@@ -173,7 +173,8 @@ class Dialog extends Widget {
     }
     for (let buttonNode of this._buttonNodes) {
       if (buttonNode.contains(event.target as HTMLElement)) {
-        this._resolve(this._buttonNodes.indexOf(buttonNode));
+        let index = this._buttonNodes.indexOf(buttonNode);
+        this._resolve(this._buttons[index]);
       }
     }
   }
@@ -203,7 +204,7 @@ class Dialog extends Widget {
     case 13:  // Enter.
       event.stopPropagation();
       event.preventDefault();
-      this._resolve(this._defaultButton);
+      this._resolve(this._buttons[this._defaultButton]);
       break;
     default:
       break;
@@ -230,30 +231,25 @@ class Dialog extends Widget {
     if (!this._promise) {
       return;
     }
+    let item = Private.rejectButton;
     // Find the first button with a cancel action.
     let index = ArrayExt.findFirstIndex(this._buttons, button => {
       return button.action === 'reject';
     });
     if (index !== -1) {
-      let callback = this._buttons[index].callback;
-      callback();
+      item = this._buttons[index];
     }
-    this._promise.resolve(false);
-    this._promise = null;
-    this.close();
+    this._resolve(item);
   }
 
   /**
    * Accept and close the dialog.
    */
-  private _resolve(index: number): void {
+  private _resolve(item: Dialog.IButton): void {
     if (!this._promise) {
       return;
     }
-    let button = this._buttons[index];
-    let callback = button.callback;
-    callback();
-    this._promise.resolve(button.action === 'accept');
+    this._promise.resolve(item);
     this._promise = null;
     this.close();
   }
@@ -263,7 +259,7 @@ class Dialog extends Widget {
   private _original: HTMLElement;
   private _first: HTMLElement;
   private _primary: HTMLElement;
-  private _promise: PromiseDelegate<boolean> | null;
+  private _promise: PromiseDelegate<Dialog.IButton> | null;
   private _defaultButton: number;
   private _host: HTMLElement;
 }
@@ -354,14 +350,9 @@ namespace Dialog {
     readonly action: 'accept' | 'reject';
 
     /**
-     * The button type.
+     * The button display type.
      */
-    readonly type: 'default' | 'warn';
-
-    /**
-     * The selection callback for the button.
-     */
-    readonly callback: () => void;
+    readonly displayType: 'default' | 'warn';
   }
 
   /**
@@ -554,7 +545,7 @@ namespace Dialog {
       } else {
         name += ' jp-mod-reject';
       }
-      if (data.type === 'warn') {
+      if (data.displayType === 'warn') {
         name += ' jp-mod-warn';
       }
 
@@ -629,9 +620,10 @@ namespace Private {
   }
 
   /**
-   * The default no-op callback.
+   * The default reject button.
    */
-  const defaultCallback = () => { /* no-op */ };
+  export
+  const rejectButton = createButton({ action: 'reject' });
 
   /**
    * Create a button item.
@@ -644,8 +636,7 @@ namespace Private {
       caption: value.caption || '',
       className: value.className || '',
       action: value.action || 'accept',
-      type: value.type || 'default',
-      callback: value.callback || defaultCallback
+      displayType: value.displayType || 'default'
     };
   }
 
