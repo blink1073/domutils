@@ -162,7 +162,7 @@ describe('@jupyterlab/domutils', () => {
           let promise = dialog.show().then(result => {
             expect(result.action).to.equal('accept');
           });
-          acceptDialog();
+          dialog.resolve();
           return promise;
         });
 
@@ -170,7 +170,7 @@ describe('@jupyterlab/domutils', () => {
           let promise = dialog.show().then(result => {
             expect(result.action).to.equal('reject');
           });
-          rejectDialog();
+          dialog.reject();
           return promise;
         });
 
@@ -181,6 +181,26 @@ describe('@jupyterlab/domutils', () => {
           dialog.close();
           return promise;
         });
+
+        it('should return focus to the original focused element', () => {
+          let input = document.createElement('input');
+          document.body.appendChild(input);
+          simulate(input, 'click');
+          let promise = dialog.show().then(() => {
+            expect(document.activeElement).to.equal(input);
+            document.body.removeChild(input);
+          });
+          dialog.resolve();
+          return promise;
+        });
+
+      });
+
+      describe('#resolve()', () => {
+
+      });
+
+      describe('#reject()', () => {
 
       });
 
