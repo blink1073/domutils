@@ -32,9 +32,9 @@ function acceptDialog(host: HTMLElement = document.body): void {
 
 
 /**
- * Dismiss a dialog.
+ * Reject a dialog.
  */
-function dismissDialog(host: HTMLElement = document.body): void {
+function rejectDialog(host: HTMLElement = document.body): void {
   let node = host.getElementsByClassName('jp-Dialog')[0];
   simulate(node as HTMLElement, 'keydown', { keyCode: 27 });
 }
@@ -72,9 +72,9 @@ describe('@jupyterlab/domutils', () => {
 
     it('should accept zero arguments', () => {
       let promise = showDialog().then(result => {
-        expect(result).to.equal(false);
+        expect(result.action).to.equal('reject');
       });
-      dismissDialog();
+      rejectDialog();
       return promise;
     });
 
@@ -86,31 +86,11 @@ describe('@jupyterlab/domutils', () => {
         body: 'Hello',
         host: node,
         buttons: [Dialog.okButton],
-        okText: 'Yep'
       };
       let promise = showDialog(options).then(result => {
-        expect(result).to.equal(false);
+        expect(result.action).to.equal('reject');
       });
-      dismissDialog();
-      return promise;
-    });
-
-    it('should call the given callback', () => {
-      let called = false;
-      let callback = () => {
-        called = true;
-      };
-      let options = {
-        buttons: [{
-          label: 'foo',
-          callback
-        }]
-      };
-      let promise = showDialog(options).then(result => {
-        expect(result).to.equal(true);
-        expect(called).to.equal(true);
-      });
-      acceptDialog();
+      rejectDialog();
       return promise;
     });
 
@@ -121,7 +101,7 @@ describe('@jupyterlab/domutils', () => {
       body.appendChild(input);
       body.appendChild(select);
       let promise = showDialog({ body }).then(result => {
-        expect(result).to.equal(true);
+        expect(result.action).to.equal('accept');
       });
       acceptDialog();
       return promise;
@@ -130,7 +110,7 @@ describe('@jupyterlab/domutils', () => {
     it('should accept a widget body', () => {
       let body = new Widget();
       let promise = showDialog({ body }).then(result => {
-        expect(result).to.equal(true);
+        expect(result.action).to.equal('accept');
       });
       acceptDialog();
       return promise;
@@ -151,9 +131,56 @@ describe('@jupyterlab/domutils', () => {
 
       describe('#constructor()', () => {
 
+        it('should create a new dialog', () => {
+          expect(dialog).to.be.an.instanceof(Dialog);
+        });
+
+        it('should accept options', () => {
+          dialog = new TestDialog({
+            title: 'foo',
+            body: 'Hello',
+            buttons: [Dialog.okButton]
+          });
+          expect(dialog).to.be.an.instanceof(Dialog);
+        });
+
       });
 
       describe('#show()', () => {
+
+        it('should attach the dialog to the host', () => {
+          let host = document.createElement('div');
+          document.body.appendChild(host);
+          dialog = new TestDialog({ host });
+          dialog.show();
+          expect(host.firstChild).to.equal(dialog.node);
+          dialog.dispose();
+          document.body.removeChild(host);
+        });
+
+        it('should resolve with `true` when accepted', () => {
+          let promise = dialog.show().then(result => {
+            expect(result.action).to.equal('accept');
+          });
+          acceptDialog();
+          return promise;
+        });
+
+        it('should resolve with `false` when accepted', () => {
+          let promise = dialog.show().then(result => {
+            expect(result.action).to.equal('reject');
+          });
+          rejectDialog();
+          return promise;
+        });
+
+        it('should resolve with `false` when closed', () => {
+          let promise = dialog.show().then(result => {
+            expect(result.action).to.equal('reject');
+          });
+          dialog.close();
+          return promise;
+        });
 
       });
 
@@ -161,13 +188,42 @@ describe('@jupyterlab/domutils', () => {
 
         context('keydown', () => {
 
+          it('should reject on escape key', () => {
+            let promise = dialog.show().then(result => {
+              expect(result.action).to.equal('reject');
+            });
+            simulate(dialog.node, 'keydown', { keyCode: 27 });
+            return promise;
+          });
+
+          it('should accept on enter key', () => {
+            let promise = dialog.show().then(result => {
+              expect(result.action).to.equal('accept');
+            });
+            simulate(dialog.node, 'keydown', { keyCode: 13 });
+            return promise;
+          });
+
+          it('should cycle to the first button on a tab key', () => {
+            let promise = dialog.show().then(result => {
+              expect(result.action).to.equal('reject');
+            });
+            let node = document.activeElement;
+            expect(node.className).to.contain('jp-mod-accept');
+            simulate(dialog.node, 'keydown', { keyCode: 9 });
+            node = document.activeElement;
+            expect(node.className).to.contain('jp-mod-reject');
+            simulate(node, 'click');
+            return promise;
+          });
+
         });
 
         context('contextmenu', () => {
 
           it('should ignore context menu events', () => {
             let promise = dialog.show().then(result => {
-              expect(result).to.equal(false);
+              expect(result.action).to.equal('reject');
             });
             let node = document.body.getElementsByClassName('jp-Dialog')[0];
             simulate(node as HTMLElement, 'contextmenu');
