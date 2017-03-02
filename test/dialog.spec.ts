@@ -112,26 +112,8 @@ describe('@jupyterlab/domutils', () => {
       acceptDialog();
     });
 
-    it('should accept an input body', (done) => {
-      let body = document.createElement('input');
-      showDialog({ body }).then(result => {
-        expect(result).to.equal(true);
-        done();
-      });
-      dismissDialog();
-    });
-
-    it('should accept a select body', (done) => {
-      let body = document.createElement('select');
-      showDialog({ body }).then(result => {
-        expect(result).to.equal(true);
-        done();
-      });
-      acceptDialog();
-    });
-
     it('should accept a widget body', (done) => {
-      let body = new Widget({node: document.createElement('div')});
+      let body = new Widget();
       showDialog({ body }).then(result => {
         expect(result).to.equal(true);
         done();
