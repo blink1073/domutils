@@ -6,6 +6,10 @@ import {
 } from 'chai';
 
 import {
+  each
+} from '@phosphor/algorithm';
+
+import {
   Message
 } from '@phosphor/messaging';
 
@@ -307,7 +311,17 @@ describe('@jupyterlab/domutils', () => {
         context('focus', () => {
 
           it('should focus the default button when focus leaves the dialog', () => {
-
+            let input = document.createElement('input');
+            document.body.appendChild(input);
+            let host = document.createElement('div');
+            document.body.appendChild(host);
+            dialog = new TestDialog({ host });
+            let promise = dialog.show();
+            input.focus();
+            expect(document.activeElement).to.not.equal(input);
+            expect(document.activeElement.className).to.contain('jp-mod-accept');
+            dialog.resolve();
+            return promise;
           });
 
         });
@@ -316,17 +330,77 @@ describe('@jupyterlab/domutils', () => {
 
       describe('#onBeforeAttach()', () => {
 
+        it('should attach event listeners', () => {
+          Widget.attach(dialog, document.body);
+          expect(dialog.methods).to.contain('onBeforeAttach');
+          let events = ['keydown', 'contextmenu', 'click', 'focus'];
+          each(events, evt => {
+            simulate(dialog.node, evt);
+            expect(dialog.events).to.contain(evt);
+          });
+        });
+
+        it('should focus the default button', () => {
+          Widget.attach(dialog, document.body);
+          expect(document.activeElement.className).to.contain('jp-mod-accept');
+        });
+
+        it('should focus the primary element', () => {
+          let body = document.createElement('input');
+          dialog = new TestDialog({ body, primaryElement: body });
+          Widget.attach(dialog, document.body);
+          expect(document.activeElement).to.equal(body);
+        });
+
       });
 
       describe('#onAfterDetach()', () => {
+
+        it('should remove event listeners', () => {
+          Widget.attach(dialog, document.body);
+          Widget.detach(dialog);
+          expect(dialog.methods).to.contain('onAfterDetach');
+          dialog.events = [];
+          let events = ['keydown', 'contextmenu', 'click', 'focus'];
+          each(events, evt => {
+            simulate(dialog.node, evt);
+            expect(dialog.events).to.not.contain(evt);
+          });
+        });
+
+        it('should return focus to the original focused element', () => {
+          let input = document.createElement('input');
+          document.body.appendChild(input);
+          input.focus();
+          Widget.attach(dialog, document.body);
+          Widget.detach(dialog);
+          expect(document.activeElement).to.equal(input);
+        });
 
       });
 
       describe('#onCloseRequest()', () => {
 
+        it('should reject an existing promise', () => {
+          let promise = dialog.show().then(result => {
+            expect(result.action).to.equal('reject');
+          });
+          dialog.close();
+          return promise;
+        });
+
+      });
+
+      describe('.defaultRenderer', () => {
+
+      });
+
+      describe('.Renderer', () => {
+
       });
 
     });
+
 
   });
 

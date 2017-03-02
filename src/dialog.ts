@@ -630,6 +630,7 @@ namespace Private {
     );
     newOptions.defaultButton = options.defaultButton || newOptions.buttons.length - 1;
     newOptions.renderer = options.renderer || Dialog.defaultRenderer;
+    newOptions.primaryElement = options.primaryElement;
     return newOptions;
   }
 
