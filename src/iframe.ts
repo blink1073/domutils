@@ -7,12 +7,6 @@ import {
 
 
 /**
- * The class name added to an IFrame widget.
- */
-const IFRAME_CLASS = 'jp-IFrame';
-
-
-/**
  * A phosphor widget which wraps an IFrame.
  */
 export
@@ -22,11 +16,11 @@ class IFrame extends Widget {
    */
   constructor() {
     super({ node: Private.createNode() });
-    this.addClass(IFRAME_CLASS);
+    this.addClass('jp-IFrame');
   }
 
   /**
-   * The IFrame's URL.
+   * The url of the IFrame.
    */
   get url(): string {
     return this.node.querySelector('iframe').getAttribute('src');
