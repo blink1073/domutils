@@ -2,7 +2,7 @@
 // Distributed under the terms of the Modified BSD License.
 
 import {
-  ArrayExt, each, map, toArray
+  each, map, toArray
 } from '@phosphor/algorithm';
 
 import {
@@ -94,6 +94,37 @@ class Dialog extends Widget {
   }
 
   /**
+   * Resolve the current dialog.
+   *
+   * @param index - An optional index to the button to resolve.
+   *
+   * #### Notes
+   * Will default to the defaultIndex.
+   * Will resolve the current `show()` with the button value.
+   * Will be a no-op if the dialog is not shown.
+   */
+  resolve(index?: number): void {
+    if (!this._promise) {
+      return;
+    }
+    index = index || this._defaultButton;
+    this._resolve(this._buttons[index]);
+  }
+
+  /**
+   * Reject the current dialog with a default reject value.
+   *
+   * #### Notes
+   * Will be a no-op if the dialog is not shown.
+   */
+  reject(): void {
+    if (!this._promise) {
+      return;
+    }
+    this._resolve(Private.rejectButton);
+  }
+
+  /**
    * Handle the DOM events for the directory listing.
    *
    * @param event - The DOM event sent to the widget.
@@ -154,7 +185,7 @@ class Dialog extends Widget {
    */
   protected onCloseRequest(msg: Message): void {
     if (this._promise) {
-      this._reject();
+      this.reject();
     }
     super.onCloseRequest(msg);
   }
@@ -168,13 +199,13 @@ class Dialog extends Widget {
     let content = this.node.getElementsByClassName('jp-Dialog-content')[0] as HTMLElement;
     if (!content.contains(event.target as HTMLElement)) {
       event.stopPropagation();
-      this._reject();
+      this.reject();
       return;
     }
     for (let buttonNode of this._buttonNodes) {
       if (buttonNode.contains(event.target as HTMLElement)) {
         let index = this._buttonNodes.indexOf(buttonNode);
-        this._resolve(this._buttons[index]);
+        this.resolve(index);
       }
     }
   }
@@ -190,7 +221,7 @@ class Dialog extends Widget {
     case 27:  // Escape.
       event.stopPropagation();
       event.preventDefault();
-      this._reject();
+      this.reject();
       break;
     case 9:  // Tab.
       // Handle a tab on the last button.
@@ -204,7 +235,7 @@ class Dialog extends Widget {
     case 13:  // Enter.
       event.stopPropagation();
       event.preventDefault();
-      this._resolve(this._buttons[this._defaultButton]);
+      this.resolve();
       break;
     default:
       break;
@@ -225,33 +256,14 @@ class Dialog extends Widget {
   }
 
   /**
-   * Reject the dialog.
-   */
-  private _reject(): void {
-    if (!this._promise) {
-      return;
-    }
-    let item = Private.rejectButton;
-    // Find the first button with a cancel action.
-    let index = ArrayExt.findFirstIndex(this._buttons, button => {
-      return button.action === 'reject';
-    });
-    if (index !== -1) {
-      item = this._buttons[index];
-    }
-    this._resolve(item);
-  }
-
-  /**
-   * Accept and close the dialog.
+   * Resolve a button item.
    */
   private _resolve(item: Dialog.IButton): void {
-    if (!this._promise) {
-      return;
-    }
-    this._promise.resolve(item);
+    // Prevent loopback.
+    let promise = this._promise;
     this._promise = null;
     this.close();
+    promise.resolve(item);
   }
 
   private _buttonNodes: ReadonlyArray<HTMLElement>;
