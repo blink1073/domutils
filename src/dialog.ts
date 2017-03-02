@@ -201,7 +201,7 @@ class Dialog extends Widget {
     let content = this.node.getElementsByClassName('jp-Dialog-content')[0] as HTMLElement;
     if (!content.contains(event.target as HTMLElement)) {
       event.stopPropagation();
-      this.reject();
+      event.preventDefault();
       return;
     }
     for (let buttonNode of this._buttonNodes) {
