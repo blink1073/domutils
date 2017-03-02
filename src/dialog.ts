@@ -107,7 +107,9 @@ class Dialog extends Widget {
     if (!this._promise) {
       return;
     }
-    index = index || this._defaultButton;
+    if (index === undefined) {
+      index = this._defaultButton;
+    }
     this._resolve(this._buttons[index]);
   }
 

@@ -185,11 +185,13 @@ describe('@jupyterlab/domutils', () => {
         it('should return focus to the original focused element', () => {
           let input = document.createElement('input');
           document.body.appendChild(input);
-          simulate(input, 'click');
+          input.focus();
+          expect(document.activeElement).to.equal(input);
           let promise = dialog.show().then(() => {
             expect(document.activeElement).to.equal(input);
             document.body.removeChild(input);
           });
+          expect(document.activeElement).to.not.equal(input);
           dialog.resolve();
           return promise;
         });
