@@ -25,9 +25,5 @@ function hitTestNodes(nodes: ReadonlyArray<HTMLElement> | NodeList, x: number, y
  */
 export
 function findElement(parent: HTMLElement, className: string): HTMLElement | null {
-  let elements = parent.getElementsByClassName(className);
-  if (elements.length) {
-    return elements[0] as HTMLElement;
-  }
-  return null;
+  return parent.querySelector(`.${className}`) as HTMLElement | null;
 }
