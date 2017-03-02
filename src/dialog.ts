@@ -35,7 +35,11 @@ import {
  */
 export
 function showDialog(options: Dialog.IOptions={}): Promise<boolean> {
-  return new Dialog(options).show();
+  let dialog = new Dialog(options);
+  return dialog.show().then(result => {
+    dialog.dispose();
+    return result;
+  });
 }
 
 
