@@ -10,22 +10,22 @@ import {
  * A phosphor widget which wraps an IFrame.
  */
 export
-class IFrame extends Widget {
+class IFrameWidget extends Widget {
   /**
    * Create a new IFrame widget.
    */
   constructor() {
     super({ node: Private.createNode() });
-    this.addClass('jp-IFrame');
+    this.addClass('jp-IFrameWidget');
   }
 
   /**
    * The url of the IFrame.
    */
-  get url(): string {
+  get url(): string | null {
     return this.node.querySelector('iframe').getAttribute('src');
   }
-  set url(url: string) {
+  set url(url: string | null) {
     this.node.querySelector('iframe').setAttribute('src', url);
   }
 }
