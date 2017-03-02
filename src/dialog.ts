@@ -376,19 +376,19 @@ namespace Dialog {
    * A default accept button.
    */
   export
-  const okButton = Private.createButton({
+  const okButton: ButtonOptions = {
     label: 'OK',
     action: 'accept'
-  });
+  };
 
   /**
    * A default reject button.
    */
   export
-  const cancelButton = Private.createButton({
+  const cancelButton: ButtonOptions = {
     label: 'CANCEL',
     action: 'reject'
-  });
+  };
 
   /**
    * A dialog renderer.
@@ -602,7 +602,6 @@ namespace Dialog {
 /**
  * The namespace for module private data.
  */
-export
 namespace Private {
   /**
    * Handle the input options for a dialog.
