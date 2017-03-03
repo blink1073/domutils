@@ -6,6 +6,5 @@ import '@phosphor/widgets/style/index.css';
 import './dialog.spec';
 import './iframe.spec';
 import './sanitizer.spec';
-import './searching.spec';
-// import './styling.spec';
+import './styling.spec';
 import './vdom.spec';

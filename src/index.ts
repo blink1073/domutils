@@ -5,6 +5,5 @@ export * from './dialog';
 export * from './hoverbox';
 export * from './iframe';
 export * from './sanitizer';
-export * from './searching';
 export * from './styling';
 export * from './vdom';

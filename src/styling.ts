@@ -17,7 +17,9 @@ function styleNode(node: HTMLElement): void {
  */
 export
 function styleNodeByTag(node: HTMLElement, tagName: string): void {
-  node.classList.add('jp-mod-styled');
+  if (node.localName === tagName) {
+    node.classList.add('jp-mod-styled');
+  }
   let nodes = node.getElementsByTagName(tagName);
   for (let i = 0; i < nodes.length; i++) {
     nodes[i].classList.add('jp-mod-styled');
