@@ -315,14 +315,15 @@ describe('@jupyterlab/domutils', () => {
         context('focus', () => {
 
           it('should focus the default button when focus leaves the dialog', () => {
-            let input = document.createElement('input');
-            document.body.appendChild(input);
+            let target = document.createElement('div');
+            target.tabIndex = -1;
+            document.body.appendChild(target);
             let host = document.createElement('div');
             document.body.appendChild(host);
             dialog = new TestDialog({ host });
             let promise = dialog.show();
-            input.focus();
-            expect(document.activeElement).to.not.equal(input);
+            simulate(target, 'focus');
+            expect(document.activeElement).to.not.equal(target);
             expect(document.activeElement.className).to.contain('jp-mod-accept');
             dialog.resolve();
             return promise;
