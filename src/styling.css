@@ -37,31 +37,48 @@ input.jp-mod-styled {
 }
 
 
-select.jp-mod-styled {
-  padding: 1px;
-  background: white;
-  height: 28px;
-  box-sizing: border-box;
-  border: var(--jp-border-width) solid var(--jp-border-color1);
-  font-size: var(--jp-ui-font-size2);
-  background: white;
-  color: var(--jp-ui-font-color0);
-  border-radius: 0px;
-  padding-left: 8px;
-  background-image: var(--jp-select-dropdown);
-  background-repeat: no-repeat;
-  background-position: right center;
-  background-size: 20px;
-  outline: none;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-}
-
-
-select.jp-mod-styled:focus,
 input.jp-mod-styled:focus,
 button.jp-mod-styled:focus {
   border: var(--jp-border-width) solid var(--md-blue-500);
   box-shadow: inset 0 0 4px var(--md-blue-300);
+}
+
+
+.jp-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 1px;
+  background: white;
+  height: 28px;
+  width: 252px;
+  box-sizing: border-box;
+  border: var(--jp-border-width) solid var(--jp-border-color1);
+  margin-bottom: 12px;
+}
+
+
+.jp-select-wrapper.jp-mod-focused{
+  border: var(--jp-border-width) solid var(--md-blue-500);
+  box-shadow: inset 0 0 4px var(--md-blue-300);
+}
+
+
+select.jp-mod-styled {
+  flex: 1 1 auto;
+  height: 32px;
+  font-size: var(--jp-ui-font-size2);
+  background: white;
+  color: var(--jp-ui-font-color0);
+  padding-left: 8px;
+  background-image: var(--jp-ui-select-caret);
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-size: 20px;
+  // Remove inner styling.
+  border: none;
+  border-radius: 0px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
 }

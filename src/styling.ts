@@ -23,5 +23,31 @@ function styleNodeByTag(node: HTMLElement, tagName: string): void {
   let nodes = node.getElementsByTagName(tagName);
   for (let i = 0; i < nodes.length; i++) {
     nodes[i].classList.add('jp-mod-styled');
+    if (tagName === 'select') {
+      let wrapper = document.createElement('div');
+      wrapper.classList.add('jp-select-wrapper');
+      wrapper.addEventListener('focus', Private.onFocus);
+      wrapper.addEventListener('blur', Private.onFocus);
+      node.replaceChild(wrapper, nodes[i]);
+    }
   }
+}
+
+
+/**
+ * The namespace for module private data.
+ */
+namespace Private {
+  /**
+   * Handle a focus event on a styled select.
+   */
+   export
+   function onFocus(event: FocusEvent): void {
+    let target = event.target as Element;
+    let parent = target.parentElement;
+    if (event.type === 'focus') {
+      parent.classList.add('jp-mod-focused');
+    } else {
+      parent.classList.remove('jp-mod-focused');
+   }
 }
